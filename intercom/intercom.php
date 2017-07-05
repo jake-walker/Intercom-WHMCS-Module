@@ -7,9 +7,9 @@ function intercom_config()
 {
     $configarray = array(
         'name'          => 'Intercom',
-        'description'   => 'Brings Intercom to your WHMCS installation to track your users.',
+        'description'   => 'Integrates Intercom into the WHMCS Client Area and sends client information. (Original Project by Goodbytes)',
         'version'       => '1.0',
-        'author'        => 'Goodbytes',
+        'author'        => 'Jake Walker',
         'fields'        => array(
             'app_id' => array(
                 'FriendlyName'  => 'App ID',
