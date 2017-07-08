@@ -8,8 +8,11 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 // run this code on every client area page
 add_hook("ClientAreaFooterOutput", 1, function ($vars) {
+  // define variables that we are going to use
   $output = "";
-  $appId = '';
+  $appId = "";
+  $hmacKey = "";
+  $userHash = "";
 
   // load the intercom app id from the whmcs database
   $data = Capsule::table('tbladdonmodules')
@@ -22,6 +25,18 @@ add_hook("ClientAreaFooterOutput", 1, function ($vars) {
     $appId = $data->app_id;
   }
 
+  // load the intercom hmac key from the whmcs database
+  $data = Capsule::table('tbladdonmodules')
+    ->select('value AS hmac_key')
+    ->where('setting', '=', 'hmac_key')
+    ->where('module', '=', 'intercom')
+    ->first();
+
+  if ($data) {
+    $hmacKey = $data->hmac_key;
+  }
+
+  // define more variables we need
   $params = array();
   $userData = '';
 
@@ -181,6 +196,16 @@ add_hook("ClientAreaFooterOutput", 1, function ($vars) {
 
       $userData = implode(",\n    ", $userDataArray);
     }
+
+    // if we have a hmac key set
+    if (isset($hmacKey) && $hmacKey != "") {
+      // generate a hmac hash of the client's email
+      $userHash = hash_hmac(
+        'sha256',
+        $vars['clientsdetails']['email'], // client's email
+        $hmacKey // intercom hmac key
+      );
+    }
   }
 
   // html to inject to page
@@ -188,7 +213,16 @@ add_hook("ClientAreaFooterOutput", 1, function ($vars) {
     <script>\n
       window.intercomSettings = {\n
         app_id: \"{$appId}\",
-        " . ($userData) . "
+  ";
+
+  // if we have a user hash, inject it into the intercom code
+  if (isset($userHash) && $userHash != "") {
+    $output .= "
+      user_hash: '".$userHash."',
+    ";
+  }
+
+  $output .= ($userData) . "
       };\n
     </script>\n
     <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==='function'){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/pei8ix75';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>

@@ -8,7 +8,7 @@ function intercom_config()
     $configarray = array(
         'name'          => 'Intercom',
         'description'   => 'Integrates Intercom into the WHMCS Client Area and sends client information. (Original Project by Goodbytes)',
-        'version'       => '1.0',
+        'version'       => '2.0',
         'author'        => 'Jake Walker',
         'fields'        => array(
             'app_id' => array(
@@ -16,6 +16,13 @@ function intercom_config()
                 'Type'          => 'text',
                 'Size'          => '64',
                 'Description'   => 'Add your Intercom App ID',
+                'Default'       => ''
+            ),
+            'hmac_key' => array(
+                'FriendlyName'  => 'HMAC Key',
+                'Type'          => 'text',
+                'Size'          => '64',
+                'Description'   => 'Add your Intercom HMAC Key (leave blank to disable)',
                 'Default'       => ''
             )
         )
@@ -28,7 +35,7 @@ function intercom_activate()
 {
     return array(
         'status'        => 'success',
-        'description'   => 'Intercom module has been activated. Add your App ID, you can find this by logging into Intercom.'
+        'description'   => 'Intercom module has been activated. Add your App ID and HMAC Key, you can find this by logging into Intercom.'
     );
 }
 
